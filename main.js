@@ -13,7 +13,7 @@ let videoExport;
  * Initialize MapLibre GL JS map instance
  */
 function initMap() {
-  const defaultTileUrl = import.meta.env.VITE_TILE_URL || '';
+  const defaultTileUrl = import.meta.env.VITE_TILE_URL || 'http://localhost:8081/{z}/{x}/{y}.png';
   const tileInput = document.getElementById('tile-url');
   if (defaultTileUrl) {
     tileInput.value = defaultTileUrl;
@@ -45,7 +45,7 @@ function initMap() {
         }
       ]
     },
-    center: [42.32271, 17.373340], // User requested center (Jizan area)
+    center: [104.1637613, 1.3495334], // User requested center
     zoom: 12,
     pitch: 0,
     bearing: 0,
@@ -61,6 +61,41 @@ function initMap() {
     encoderPath: 'https://unpkg.com/mp4-h264@1.0.7/build/'
   });
   map.addControl(videoExport, 'bottom-right');
+
+  // Coordinate Input Logic
+  const coordsInput = document.getElementById('viewport-coords');
+
+  const updateCoordsInput = () => {
+    const center = map.getCenter();
+    // Display as Lat, Long
+    coordsInput.value = `${center.lat.toFixed(6)}, ${center.lng.toFixed(6)}`;
+  };
+
+  // Update input when map moves
+  map.on('move', () => {
+    // Only update if the input is not focused to avoid fighting with user input
+    if (document.activeElement !== coordsInput) {
+      updateCoordsInput();
+    }
+  });
+
+  // Update on load
+  map.on('load', updateCoordsInput);
+
+  // Update map when input changes
+  coordsInput.addEventListener('change', () => {
+    const val = coordsInput.value;
+    const parts = val.split(',').map(s => parseFloat(s.trim()));
+
+    if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+      // Input is Lat, Long. MapLibre uses [lng, lat]
+      map.flyTo({
+        center: [parts[1], parts[0]],
+        essential: true
+      });
+      coordsInput.blur(); // Remove focus so the map update can refresh the input values during/after move
+    }
+  });
 
   // Map Style Toggle
   const lightBtn = document.getElementById('style-light-btn');
@@ -194,17 +229,17 @@ function renderKeyframes() {
   const container = document.getElementById('keyframes-list');
   const previewBtn = document.getElementById('preview-btn');
   const exportBtn = document.getElementById('export-btn');
-  
+
   if (keyframes.length === 0) {
     container.innerHTML = '<div class="empty-state">No keyframes captured. Move the map and capture a view to start.</div>';
     previewBtn.disabled = true;
     exportBtn.disabled = true;
     return;
   }
-  
+
   previewBtn.disabled = false;
   exportBtn.disabled = false;
-  
+
   container.innerHTML = '';
   keyframes.forEach((kf, index) => {
     const el = document.createElement('div');
@@ -245,12 +280,12 @@ function renderKeyframes() {
  */
 async function previewTour() {
   if (keyframes.length === 0) return;
-  
+
   const previewBtn = document.getElementById('preview-btn');
   const originalText = previewBtn.innerText;
   previewBtn.innerText = '▶ Playing...';
   previewBtn.disabled = true;
-  
+
   // Jump to first frame instantly
   const first = keyframes[0];
   map.jumpTo({
@@ -260,7 +295,7 @@ async function previewTour() {
     bearing: first.bearing
   });
   await new Promise(r => setTimeout(r, first.duration));
-  
+
   // Fly to subsequent frames
   for (let i = 1; i < keyframes.length; i++) {
     const kf = keyframes[i];
@@ -279,7 +314,7 @@ async function previewTour() {
       });
     });
   }
-  
+
   previewBtn.innerText = originalText;
   previewBtn.disabled = false;
 }
@@ -289,7 +324,7 @@ async function previewTour() {
  */
 function initKeyframeUI() {
   document.getElementById('capture-keyframe-btn').addEventListener('click', captureKeyframe);
-  
+
   document.getElementById('keyframes-list').addEventListener('click', (e) => {
     if (e.target.classList.contains('keyframe-delete')) {
       const id = e.target.getAttribute('data-id');
@@ -309,12 +344,12 @@ function initKeyframeUI() {
       }
     }
   });
-  
+
   document.getElementById('keyframes-list').addEventListener('change', (e) => {
     const id = e.target.getAttribute('data-id');
     const kf = keyframes.find(k => k.id === id);
     if (!kf) return;
-    
+
     if (e.target.classList.contains('duration-input')) {
       const val = parseInt(e.target.value, 10);
       kf.duration = isNaN(val) ? 3000 : Math.max(0, val);
@@ -330,12 +365,12 @@ function initKeyframeUI() {
       kf.bearing = parseFloat(e.target.value) || 0;
     }
   });
-  
+
   document.getElementById('preview-btn').addEventListener('click', previewTour);
 
   document.getElementById('export-btn').addEventListener('click', () => {
     if (keyframes.length === 0 || !videoExport) return;
-    
+
     // Inject keyframes into the export control's waypoints
     const features = keyframes.map((kf, index) => ({
       type: 'Feature',
@@ -356,7 +391,7 @@ function initKeyframeUI() {
       type: 'FeatureCollection',
       features
     };
-    
+
     // Set to waypoint tour
     videoExport.options.animation = 'waypointTour';
     const animSelect = document.getElementById('ve-animation');
@@ -369,7 +404,7 @@ function initKeyframeUI() {
         if (videoExport._sectionStates) videoExport._sectionStates['points-of-interest'] = false;
         const content = videoExport._panel?.querySelector('[data-section-content="points-of-interest"]');
         if (content) content.style.display = 'block';
-      } catch(e) {}
+      } catch (e) { }
     }
 
     // Open actual Export Control panel if it's currently hidden
