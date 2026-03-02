@@ -1,0 +1,28 @@
+{
+  "hash": "762c50e1",
+  "configHash": "e3986abf",
+  "lockfileHash": "fef7f344",
+  "browserHash": "e216798d",
+  "optimized": {
+    "maplibre-gl": {
+      "src": "../../node_modules/maplibre-gl/dist/maplibre-gl.js",
+      "file": "maplibre-gl.js",
+      "fileHash": "637f5037",
+      "needsInterop": true
+    },
+    "maplibre-gl-video-export": {
+      "src": "../../node_modules/maplibre-gl-video-export/src/index.js",
+      "file": "maplibre-gl-video-export.js",
+      "fileHash": "8fc63c23",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "webcodecs-vp9-encoder-SGRGXST7": {
+      "file": "webcodecs-vp9-encoder-SGRGXST7.js"
+    },
+    "chunk-EQCVQC35": {
+      "file": "chunk-EQCVQC35.js"
+    }
+  }
+}

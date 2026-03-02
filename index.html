@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mapbox Keyframe Video Recorder</title>
+    <!-- MapLibre CSS -->
+    <link href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css" rel="stylesheet" />
+    <!-- Included CSS -->
+    <link href="/style.css" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="app">
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <div class="input-group-horizontal">
+            <input type="text" id="tile-url" placeholder="Tile URL: https://.../{z}/{x}/{y}.png" title="Orthomosaic Tile URL" />
+            <button id="load-layer-btn" class="btn btn-secondary btn-small">Load</button>
+          </div>
+        </div>
+
+        <div class="sidebar-section">
+          <label class="section-label">Map Style</label>
+          <div class="style-toggle-group">
+            <button id="style-light-btn" class="style-btn active">Light</button>
+            <button id="style-satellite-btn" class="style-btn">Satellite</button>
+          </div>
+        </div>
+
+        <div class="sidebar-section keyframes-section">
+          <button id="capture-keyframe-btn" class="btn btn-primary btn-small">📍 Capture Frame</button>
+          <div id="keyframes-list" class="keyframes-container">
+            <div class="empty-state">No keyframes captured. Move the map and capture a view to start.</div>
+          </div>
+        </div>
+
+        <div class="sidebar-section no-border border-top">
+          <div class="action-buttons-horizontal">
+            <button id="preview-btn" class="btn btn-secondary btn-small" disabled>▶ Preview</button>
+            <button id="export-btn" class="btn btn-success btn-small" disabled>🎬 Export</button>
+          </div>
+        </div>
+      </aside>
+      
+      <main class="map-container">
+        <div id="map"></div>
+      </main>
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
